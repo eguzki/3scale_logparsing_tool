@@ -75,7 +75,21 @@ def partial_acc(logstats, res)
     params = CGI::parse(uri.query)
     if params.has_key? "provider_key"
       logstats[:authentication_provider_key] += 1
+
+      # provider_key distribution data
+      # Assuming provider_key is used in 90% of the requests,
+      # compute counter for each provider_key as client distribution
+      provider_key = params['provider_key']
+      if provider_key.is_a? Array
+        provider_key = provider_key[0]
+      end
+
+      if !logstats[:providers].has_key? provider_key
+        logstats[:providers][provider_key] = 0
+      end
+      logstats[:providers][provider_key] += 1
     end
+
     if params.has_key? "service_token"
       logstats[:authentication_service_token] += 1
     end
@@ -114,6 +128,7 @@ def parse_logfile(f)
     app_with_app_key: 0,
     authentication_provider_key: 0,
     authentication_service_token: 0,
+    providers: {}
   }
 
   File.open(f).each_with_object(init_stats) do |line, acc|
