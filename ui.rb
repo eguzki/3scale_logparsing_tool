@@ -22,6 +22,9 @@ def ui(result)
   auth_provider_key = '%.2f' % (result[:authentication_provider_key].to_f/computable_logs*100)
   auth_service_token = '%.2f' % (result[:authentication_service_token].to_f/computable_logs*100)
 
+  app_by_id = '%.2f' % (result[:app_by_app_id].to_f/computable_logs*100)
+  app_by_user_key = '%.2f' % (result[:app_by_user_key].to_f/computable_logs*100)
+
   puts '=============== Generic Stats ==================='
   puts "Total lines:\t\t\t\t #{result[:lines]}"
   puts "Failed parsing:\t\t\t\t #{failed_parsing}% (#{result[:failed_lines]})"
@@ -38,6 +41,10 @@ def ui(result)
   puts '=============== Authentication mode Stats ======='
   puts "provider_key:\t\t\t\t #{auth_provider_key}%"
   puts "service_token:\t\t\t\t #{auth_service_token}%"
+  puts
+  puts '=============== Application Stats ==============='
+  puts "By app_id:\t\t\t\t #{app_by_id}%"
+  puts "By user_key:\t\t\t\t #{app_by_user_key}%"
   puts
   puts '=============== Endpoint Stats =================='
   puts "/transactions/authorize.xml:\t\t #{api_auth}%"

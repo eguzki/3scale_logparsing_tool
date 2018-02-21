@@ -79,10 +79,10 @@ def partial_acc(logstats, res)
     if params.has_key? "service_token"
       logstats[:authentication_service_token] += 1
     end
+    # app id
     if params.has_key? "user_key"
       logstats[:app_by_user_key] += 1
-    end
-    if params.has_key? "app_id"
+    elsif params.has_key? "app_id"
       logstats[:app_by_app_id] += 1
     end
     if params.has_key? "app_key"
