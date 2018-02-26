@@ -88,6 +88,13 @@ def partial_acc(logstats, res)
         logstats[:providers][provider_key] = 0
       end
       logstats[:providers][provider_key] += 1
+    else
+    end
+
+    if params.has_key? "service_id"
+      logstats[:service_id_as_param] += 1
+    else
+      logstats[:service_id_default] += 1
     end
 
     if params.has_key? "service_token"
@@ -128,6 +135,8 @@ def parse_logfile(f)
     app_with_app_key: 0,
     authentication_provider_key: 0,
     authentication_service_token: 0,
+    service_id_default: 0,
+    service_id_as_param: 0,
     providers: {}
   }
 

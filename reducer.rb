@@ -20,6 +20,8 @@ COUNTER_STATS = [
   :app_with_app_key,
   :authentication_provider_key,
   :authentication_service_token,
+  :service_id_default,
+  :service_id_as_param,
 ]
 # Reduce phase
 def reduce_logstats(logstats)

@@ -1,5 +1,3 @@
-require 'pp'
-
 # Write results to stdout
 def ui(result)
   computable_logs = result[:lines] - result[:failed_lines] - result[:filtered_head]
@@ -22,6 +20,9 @@ def ui(result)
   auth_provider_key = '%.2f' % (result[:authentication_provider_key].to_f/computable_logs*100)
   auth_service_token = '%.2f' % (result[:authentication_service_token].to_f/computable_logs*100)
 
+  service_id_default = '%.2f' % (result[:service_id_default].to_f/computable_logs*100)
+  service_id_param = '%.2f' % (result[:service_id_as_param].to_f/computable_logs*100)
+
   app_by_id = '%.2f' % (result[:app_by_app_id].to_f/computable_logs*100)
   app_by_user_key = '%.2f' % (result[:app_by_user_key].to_f/computable_logs*100)
 
@@ -42,6 +43,10 @@ def ui(result)
   puts "provider_key:\t\t\t\t #{auth_provider_key}%"
   puts "service_token:\t\t\t\t #{auth_service_token}%"
   puts
+  puts '=============== Service Id Stats ================'
+  puts "Default Service Id:\t\t\t #{service_id_default}%"
+  puts "Service Id as param:\t\t\t #{service_id_param}%"
+  puts
   puts '=============== Application Stats ==============='
   puts "By app_id:\t\t\t\t #{app_by_id}%"
   puts "By user_key:\t\t\t\t #{app_by_user_key}%"
@@ -53,7 +58,4 @@ def ui(result)
   puts "/transactions/oauth_authrep.xml:\t #{api_oauth_authrep}%"
   puts "/transactions.xml:\t\t\t #{api_transactions}%"
   puts "others:\t\t\t\t\t #{api_other}%"
-  puts
-  puts '=============== RAW ============================='
-  pp result
 end
