@@ -1,4 +1,11 @@
 #
+def percentile(values, percentile)
+  values_sorted = values.sort
+  k = (percentile * (values_sorted.length - 1) + 1).floor - 1
+  f = (percentile * (values_sorted.length - 1) + 1).modulo(1)
+  values_sorted[k] + (f * (values_sorted[k + 1] - values_sorted[k]))
+end
+#
 def post_process(res)
   # Compute providers distribution indicators
   providers = res.delete :providers
@@ -18,5 +25,13 @@ def post_process(res)
     perc_index = providers_cdf.index { |val| val.to_f / total_hits > perc }
     # store number of providers, as percentage and total
     res[:providers_cdf][perc] = [perc_index.to_f / total_num_providers, perc_index]
+  end
+
+  # Compute service_id per provider distribution indicators
+  services_by_providers = res.delete :service_by_provider
+  num_serv_by_provider_list = services_by_providers.values.map { |provider| provider.keys.size }
+  res[:service_by_provider_cdf] = {}
+  [0.5, 0.7, 0.8, 0.9, 0.99].each do |perc|
+    res[:service_by_provider_cdf][perc] = percentile(num_serv_by_provider_list, perc)
   end
 end

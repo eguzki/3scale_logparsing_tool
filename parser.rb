@@ -81,9 +81,19 @@ def partial_acc(logstats, res)
     # Assuming provider_key is used in 90% of the requests,
     # compute counter for each provider_key as client distribution
     provider_key = params['provider_key']
-    provider_key.is_a?(Array) || provider_key = provider_key[0]
+    provider_key.is_a?(Array) && provider_key = provider_key[0]
     logstats[:providers].key?(provider_key) || logstats[:providers][provider_key] = 0
     logstats[:providers][provider_key] += 1
+    # service_id distribution by provider_key
+    logstats[:service_by_provider].key?(provider_key) || logstats[:service_by_provider][provider_key] = {}
+    if params.key? 'service_id'
+      service_id = params['service_id']
+      service_id.is_a?(Array) && service_id = service_id[0]
+      logstats[:service_by_provider][provider_key][service_id] = nil
+    else
+      # default service_id, unknown without checking from DB.
+      logstats[:service_by_provider][provider_key]['default'] = nil
+    end
   end
 
   if params.key? 'service_id'
@@ -131,7 +141,8 @@ def parse_logfile(f)
     service_id_default: 0,
     service_id_as_param: 0,
     code_reported: 0,
-    providers: {}
+    providers: {},
+    service_by_provider: {}
   }
 
   File.open(f).each_with_object(init_stats) do |line, acc|
@@ -139,7 +150,8 @@ def parse_logfile(f)
     acc[:lines] += 1
     if !parsed
       acc[:failed_lines] += 1
+    else
+      partial_acc(acc, res)
     end
-    partial_acc(acc, res) if parsed
   end
 end
