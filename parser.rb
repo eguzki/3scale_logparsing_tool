@@ -31,7 +31,7 @@ def parse(logline)
     uri_path: parser[1],
     code: parser[2].to_i
   }
-  return true, res
+  [true, res]
 end
 
 # Pre-reduce phase
@@ -71,45 +71,38 @@ def partial_acc(logstats, res)
     logstats[:status_code_other] += 1
   end
 
-  if !uri.query.nil?
-    params = CGI::parse(uri.query)
-    if params.has_key? "provider_key"
-      logstats[:authentication_provider_key] += 1
+  return if uri.query.nil?
 
-      # provider_key distribution data
-      # Assuming provider_key is used in 90% of the requests,
-      # compute counter for each provider_key as client distribution
-      provider_key = params['provider_key']
-      if provider_key.is_a? Array
-        provider_key = provider_key[0]
-      end
+  params = CGI.parse(uri.query)
+  if params.key? 'provider_key'
+    logstats[:authentication_provider_key] += 1
 
-      if !logstats[:providers].has_key? provider_key
-        logstats[:providers][provider_key] = 0
-      end
-      logstats[:providers][provider_key] += 1
-    else
-    end
-
-    if params.has_key? "service_id"
-      logstats[:service_id_as_param] += 1
-    else
-      logstats[:service_id_default] += 1
-    end
-
-    if params.has_key? "service_token"
-      logstats[:authentication_service_token] += 1
-    end
-    # app id
-    if params.has_key? "user_key"
-      logstats[:app_by_user_key] += 1
-    elsif params.has_key? "app_id"
-      logstats[:app_by_app_id] += 1
-    end
-    if params.has_key? "app_key"
-      logstats[:app_with_app_key] += 1
-    end
+    # provider_key distribution data
+    # Assuming provider_key is used in 90% of the requests,
+    # compute counter for each provider_key as client distribution
+    provider_key = params['provider_key']
+    provider_key.is_a?(Array) || provider_key = provider_key[0]
+    logstats[:providers].key?(provider_key) || logstats[:providers][provider_key] = 0
+    logstats[:providers][provider_key] += 1
   end
+
+  if params.key? 'service_id'
+    logstats[:service_id_as_param] += 1
+  else
+    logstats[:service_id_default] += 1
+  end
+
+  params.key?('service_token') && logstats[:authentication_service_token] += 1
+
+  # app identification
+  if params.key? 'user_key'
+    logstats[:app_by_user_key] += 1
+  elsif params.key? 'app_id'
+    logstats[:app_by_app_id] += 1
+  end
+
+  params.key?('app_key') && logstats[:app_with_app_key] += 1
+  params.key?('log[code]') && logstats[:code_reported] += 1
 end
 
 def parse_logfile(f)
@@ -137,6 +130,7 @@ def parse_logfile(f)
     authentication_service_token: 0,
     service_id_default: 0,
     service_id_as_param: 0,
+    code_reported: 0,
     providers: {}
   }
 
