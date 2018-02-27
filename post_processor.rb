@@ -34,4 +34,12 @@ def post_process(res)
   [0.5, 0.7, 0.8, 0.9, 0.99].each do |perc|
     res[:service_by_provider_cdf][perc] = percentile(num_serv_by_provider_list, perc)
   end
+
+  # Compute metric per request distribution indicators
+  metrics_by_request = res.delete :metrics
+  res[:metrics_by_request_cdf] = {}
+  total_reqs = metrics_by_request.values.inject(0, :+)
+  [0, 1, 2, 3, 4].each do |n|
+    res[:metrics_by_request_cdf][n] = metrics_by_request[n].to_f / total_reqs
+  end
 end

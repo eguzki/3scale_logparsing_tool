@@ -84,6 +84,7 @@ def partial_acc(logstats, res)
     provider_key.is_a?(Array) && provider_key = provider_key[0]
     logstats[:providers].key?(provider_key) || logstats[:providers][provider_key] = 0
     logstats[:providers][provider_key] += 1
+
     # service_id distribution by provider_key
     logstats[:service_by_provider].key?(provider_key) || logstats[:service_by_provider][provider_key] = {}
     if params.key? 'service_id'
@@ -93,6 +94,13 @@ def partial_acc(logstats, res)
     else
       # default service_id, unknown without checking from DB.
       logstats[:service_by_provider][provider_key]['default'] = nil
+    end
+
+    # metric distribution by provider_key
+    if uri.path.include? '/transactions/authrep.xml'
+      num_metrics = params.keys.count { |x| x.start_with?('usage') }
+      logstats[:metrics].key?(num_metrics) || logstats[:metrics][num_metrics] = 0
+      logstats[:metrics][num_metrics] += 1
     end
   end
 
@@ -142,7 +150,8 @@ def parse_logfile(f)
     service_id_as_param: 0,
     code_reported: 0,
     providers: {},
-    service_by_provider: {}
+    service_by_provider: {},
+    metrics: {}
   }
 
   File.open(f).each_with_object(init_stats) do |line, acc|

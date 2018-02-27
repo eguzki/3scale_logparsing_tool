@@ -75,4 +75,9 @@ def ui(result)
   result[:service_by_provider_cdf].sort_by { |key, _| key }.each do |perc, val|
     puts "Percentile #{perc * 100}: #{format('%.2f', val)}"
   end
+  puts
+  puts '==== Number of metrics per request Stats (only authrep) =================='
+  result[:metrics_by_request_cdf].sort_by { |key, _| key }.each do |n, val|
+    puts "#{n} metrics: #{format('%.2f %', val * 100)}"
+  end
 end

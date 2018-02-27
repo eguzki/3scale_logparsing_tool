@@ -29,11 +29,13 @@ def reduce_logstats(logstats)
   # Add all counters
   result = {
     providers: {},
-    service_by_provider: {}
+    service_by_provider: {},
+    metrics: {}
   }
   logstats.each_with_object(result) do |new_res, acc|
     acc.merge!(new_res.select { |key, _| COUNTER_STATS.include? key }) { |_, v1, v2| v1 + v2 }
     acc[:providers].merge!(new_res[:providers]) { |_, v1, v2| v1 + v2 }
     acc[:service_by_provider].merge!(new_res[:service_by_provider]) { |_, v1, v2| v1.merge(v2) }
+    acc[:metrics].merge!(new_res[:metrics]) { |_, v1, v2| v1 + v2 }
   end
 end
