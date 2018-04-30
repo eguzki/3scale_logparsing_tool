@@ -102,6 +102,15 @@ def partial_acc(logstats, res)
       logstats[:metrics].key?(num_metrics) || logstats[:metrics][num_metrics] = 0
       logstats[:metrics][num_metrics] += 1
     end
+
+    # app_id/user_key distribution by provider_key
+    # Let's assume user_key and app_id are the same
+    logstats[:app_by_provider].key?(provider_key) || logstats[:app_by_provider][provider_key] = {}
+    if params.key? 'user_key'
+      logstats[:app_by_provider][provider_key][params['user_key']] = nil
+    elsif params.key? 'app_id'
+      logstats[:app_by_provider][provider_key][params['app_id']] = nil
+    end
   end
 
   if params.key? 'service_id'
@@ -151,6 +160,7 @@ def parse_logfile(f)
     code_reported: 0,
     providers: {},
     service_by_provider: {},
+    app_by_provider: {},
     metrics: {}
   }
 

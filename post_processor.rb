@@ -35,6 +35,20 @@ def post_process(res)
     res[:service_by_provider_cdf][perc] = percentile(num_serv_by_provider_list, perc)
   end
 
+  # compute num unique service_id's
+  res[:unique_services] = num_serv_by_provider_list.inject(:+)
+
+  # compute num app per provider
+  app_by_providers = res.delete :app_by_provider
+  num_app_by_provider_list = app_by_providers.values.map { |provider| provider.keys.size }
+  res[:app_by_provider_cdf] = {}
+  [0.5, 0.7, 0.8, 0.9, 0.99].each do |perc|
+    res[:app_by_provider_cdf][perc] = percentile(num_app_by_provider_list, perc)
+  end
+
+  # compute num unique app_id's
+  res[:unique_apps] = num_app_by_provider_list.inject(:+)
+
   # Compute metric per request distribution indicators
   metrics_by_request = res.delete :metrics
   res[:metrics_by_request_cdf] = {}
